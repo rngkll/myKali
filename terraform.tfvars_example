@@ -1,4 +1,4 @@
 token = "xxxxxxxxxxxxxxxxxxxxx"
 authorized_keys = "xxxxxxxxxxxxxxxxxxxx"
 private_key_path = "~/.ssh/id_ed25519"
-root_pass = "xxxxxxxxxxxxx"
+kali_user = "your_user"

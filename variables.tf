@@ -1,7 +1,7 @@
 variable "token" {}
 variable "authorized_keys" {}
 variable "private_key_path" {}
-variable "root_pass" {}
+variable "kali_user" {}
 variable "region" {
   default = "us-southeast"
 }

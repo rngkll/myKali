@@ -21,9 +21,26 @@ resource "linode_instance" "myKali" {
   type            = "g6-standard-1"
   swap_size       = 1024
   authorized_keys = [var.authorized_keys]
-  root_pass       = var.root_pass
 
   # Setup firewall
+  provisioner "remote-exec" {
+    inline = [
+      # Disable password authentication for SSH
+      "sudo sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      "sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config",
+      # Restart SSH service to apply changes
+      "sudo systemctl restart sshd"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.private_key_path)
+      host        = self.ip_address
+    }
+  }
+
+  # Disable ssh with password
   provisioner "remote-exec" {
     inline = [
       "sudo apt update -y",
@@ -39,6 +56,7 @@ resource "linode_instance" "myKali" {
       host        = self.ip_address
     }
   }
+
   # Setup remote VNC server
   provisioner "remote-exec" {
     inline = [
@@ -54,6 +72,26 @@ resource "linode_instance" "myKali" {
       host        = self.ip_address
     }
   }
+  # Create kali_user
+  provisioner "remote-exec" {
+    inline = [
+      "sudo useradd -m -s /bin/bash ${var.kali_user}",
+      "sudo usermod -aG sudo ${var.kali_user}",
+      "echo '${var.kali_user} ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/${var.kali_user}"
+    ]
+
+    # Connection configuration
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.private_key_path)
+      host        = self.ip_address
+    }
+  }
+}
+
+output "linode_user" {
+  value = var.kali_user
 }
 
 output "linode_ip" {

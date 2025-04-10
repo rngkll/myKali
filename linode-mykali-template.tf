@@ -88,6 +88,20 @@ resource "linode_instance" "myKali" {
       host        = self.ip_address
     }
   }
+  # install extra packages
+  provisioner "remote-exec" {
+    inline = [
+      "sudo apt update -y",
+      "sudo apt -y install byobu",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "root"
+      private_key = file(var.private_key_path)
+      host        = self.ip_address
+    }
+  }
 }
 
 output "linode_user" {
